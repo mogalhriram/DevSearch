@@ -1,0 +1,21 @@
+{% load static %}
+<html>
+    <head>
+        <title>DevSearch</title>
+        <link href="{% static 'styles/main.css' %}" rel="stylesheet">
+    </head>
+    <body>
+        <h1>This is main template</h1>
+        <hr>
+        {% include 'navbar.html' %}
+        <hr>
+        {% block content %}
+
+        {% endblock content%}
+        <hr>
+        <p>
+            <h2>This is footer</h2>
+        </p>
+
+    </body>
+</html>
