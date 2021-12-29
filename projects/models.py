@@ -1,5 +1,8 @@
 from django.db import models
 import uuid
+
+from users.models import Profile
+
 # Create your models here.
 class Tag(models.Model):
     name = models.CharField(max_length=500)
@@ -14,6 +17,7 @@ class Tag(models.Model):
 
 class Project(models.Model):
     title = models.CharField(max_length=200)
+    owner = models.ForeignKey(Profile, blank=True, null=True, on_delete=models.SET_NULL)
     decription = models.TextField(null=True, blank=True)
     demo_link = models.CharField(max_length=2000, null=True, blank=True)
     source_link =models.CharField(max_length=2000, null=True, blank=True)
