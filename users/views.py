@@ -5,7 +5,7 @@ from django.db.models import query
 from django.shortcuts import redirect, render
 
 
-from .utils import searchProfiles
+from .utils import searchProfiles, paginateProfiles
 from .models import Profile, Skill
 from django.contrib.auth import authenticate, login, logout
 from .forms import CustomUserCreationForm, ProfileForm, SkillForm
@@ -66,7 +66,8 @@ def loginUser(request):
 
 def profiles(request):
     profiles, search_query = searchProfiles(request)
-    context = {'profiles': profiles, "search_query": search_query}
+    paginator, profiles, custom_range = paginateProfiles(request,profiles)
+    context = {'profiles': profiles, "search_query": search_query, "query_set":profiles, "custom_range":custom_range, "paginator": paginator}
     return render(request,"users/profiles.html",context)
 
 
