@@ -1,8 +1,11 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required  #decorator for authrization
 from django.contrib import messages
+from django.db.models import query
 from django.shortcuts import redirect, render
 
+
+from .utils import searchProfiles
 from .models import Profile, Skill
 from django.contrib.auth import authenticate, login, logout
 from .forms import CustomUserCreationForm, ProfileForm, SkillForm
@@ -60,9 +63,11 @@ def loginUser(request):
     context={"page":page}
     return render(request,'users/login-register.html',context)
 
+
 def profiles(request):
-    profiles = Profile.objects.all()
-    return render(request,"users/profiles.html",{'profiles': profiles})
+    profiles, search_query = searchProfiles(request)
+    context = {'profiles': profiles, "search_query": search_query}
+    return render(request,"users/profiles.html",context)
 
 
 def profile(request,pk):

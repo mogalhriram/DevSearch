@@ -26,6 +26,9 @@ class Profile(models.Model):
                                      
     def __str__(self) -> str:
         return str(self.user.username)
+    
+    class Meta:
+        ordering = ["created"]
 
 
 class Skill(models.Model):

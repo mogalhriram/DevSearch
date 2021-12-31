@@ -1,14 +1,15 @@
-from django import forms
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
-
+from django.core.paginator import Paginator
+from .utils import searchProjects
 from .models import Project
 from .forms import ProjectForm
 
 # Create your views here.
 def projects(request):
-    projects = Project.objects.all()
-    return render(request,"projects/projects.html",{"projects": projects})
+    projects, search_query =searchProjects(request)
+    context = {"projects": projects, "search_query": search_query}
+    return render(request,"projects/projects.html",context)
 
 def project(request,pk):
     project_obj = Project.objects.get(id=pk)
