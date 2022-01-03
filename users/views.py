@@ -6,9 +6,9 @@ from django.shortcuts import redirect, render
 
 
 from .utils import searchProfiles, paginateProfiles
-from .models import Profile, Skill
+from .models import Profile, Message
 from django.contrib.auth import authenticate, login, logout
-from .forms import CustomUserCreationForm, ProfileForm, SkillForm
+from .forms import CustomUserCreationForm, ProfileForm, SkillForm, MessageForm
 
 
 # Create your views here.
@@ -139,3 +139,49 @@ def deleteSkill(request, pk):
         return redirect("account")
     context ={"object":skill}
     return render(request, "delete_template.html",context)
+
+@login_required(login_url="login")
+def inbox(request):
+    profile = request.user.profile
+    messageRequest = profile.messages.all()
+    unreadCount = messageRequest.filter(is_read=False).count()
+    context = {"messageRequests": messageRequest, "unreadCount": unreadCount}
+    return render(request, "users/inbox.html", context)
+
+
+@login_required(login_url="login")
+def viewMessage(request,pk):
+    msg = Message.objects.get(id=pk)
+    if msg.is_read == False:
+        msg.is_read=True
+        msg.save()
+    context = {"message": msg}
+    return render(request, "users/message.html", context)
+
+def sendMessage(request, pk):
+    form = MessageForm()
+    recepient = Profile.objects.get(id=pk)
+
+    try:
+        sender = request.user.profile
+    
+    except:
+        sender=None
+    
+    if request.method == 'POST':
+        form=MessageForm(request.POST)
+        if form.is_valid:
+            msg = form.save(commit=False)
+            msg.recipient = recepient
+            msg.sender = sender
+            if sender != None:
+                msg.name = sender.name
+                msg.email = sender.email
+                
+            
+            msg.save()
+            messages.success(request, "Message sent Succesfully !")
+            return redirect("user-profile",recepient.id)
+
+    context = {"form": form, "recepient": recepient}
+    return render(request, "users/message_form.html", context)
