@@ -33,8 +33,25 @@ class Project(models.Model):
         return self.title
     
     class Meta:
-        ordering = ["created"]
+        ordering = ["-vote_ratio", "-vote_total", "title"]  #highest rated project will be shown first
 
+    @property
+    def reviewers(self):
+        query_set = self.review_set.all().values_list('owner__id', flat = True)
+        return query_set
+
+
+    @property
+    def getVoteCount(self):
+        reviews = self.review_set.all()
+        upVotes = reviews.filter(value ='up').count()
+        totalVotes = reviews.count()
+        ratio = (upVotes/totalVotes) * 100
+
+        self.vote_ratio = ratio
+        self.vote_total = totalVotes
+
+        self.save()
     
 
 class Review(models.Model):
@@ -43,13 +60,17 @@ class Review(models.Model):
         ('down', 'downvote')
     )
 
-    #owner=
+    owner= models.ForeignKey(Profile,  null= True, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete= models.CASCADE) #delete if project is deleted
     body =  models.TextField(null=True, blank=True)
     value = models.CharField(max_length=200,choices=VOTE_TYPE)
     id = models.UUIDField(default=uuid.uuid4, unique=True, 
                                      primary_key=True, editable=False)
     
+    class Meta:
+        unique_together = [['owner','project']] #will ensure one review per project by owner
+
+    
     def __str__(self) -> str:
-        return self.value
+        return (str(self.owner) +" "+ str(self.project)+" "+ str(self.value) )
 
