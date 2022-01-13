@@ -26,10 +26,18 @@ def getProjects(request):
     projects = Project.objects.all()
     searializer = ProjectSearilizer(projects, many=True)
     return Response(searializer.data)
+    
+    
 
 
-@api_view(['GET'])
-def getProject(request,pk):
-    projects = Project.objects.get(id=pk)
-    searializer = ProjectSearilizer(projects, many=False)
-    return Response(searializer.data)
+@api_view(['GET', 'POST'])
+def project(request,pk):
+
+    if request.method == 'GET':
+        projects = Project.objects.get(id=pk)
+        searializer = ProjectSearilizer(projects, many=False)
+        return Response(searializer.data)
+    
+    if request.method == 'POST':
+        data = request.POST.data
+        print(data)
